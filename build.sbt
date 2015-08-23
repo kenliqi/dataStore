@@ -17,7 +17,7 @@ libraryDependencies ++= {
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaV     % "test",
     "org.specs2"          %%  "specs2-core"   % "2.3.11"  % "test",
     "org.apache.spark"    %%  "spark-core"    % "1.4.1",
-    "junit"               %%  "junit"         % "4.4"     % "test"
+    "junit"               %   "junit"         % "4.4"     % "test"
   )
 }
 
