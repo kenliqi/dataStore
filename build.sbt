@@ -12,11 +12,12 @@ libraryDependencies ++= {
   Seq(
     "io.spray"            %%  "spray-can"     % sprayV,
     "io.spray"            %%  "spray-routing" % sprayV,
-    "io.spray"            %%  "spray-testkit" % sprayV  % "test",
+    "io.spray"            %%  "spray-testkit" % sprayV    % "test",
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
-    "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
-    "org.specs2"          %%  "specs2-core"   % "2.3.11" % "test",
-    "org.apache.spark"    %%  "spark-core" % "1.4.1"
+    "com.typesafe.akka"   %%  "akka-testkit"  % akkaV     % "test",
+    "org.specs2"          %%  "specs2-core"   % "2.3.11"  % "test",
+    "org.apache.spark"    %%  "spark-core"    % "1.4.1",
+    "junit"               %%  "junit"         % "4.4"     % "test"
   )
 }
 
