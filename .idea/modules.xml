@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/datastore.iml" filepath="$PROJECT_DIR$/datastore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/datastore.iml" filepath="$PROJECT_DIR$/.idea/modules/datastore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/datastore-build.iml" filepath="$PROJECT_DIR$/.idea/modules/datastore-build.iml" />
     </modules>
   </component>
 </project>
