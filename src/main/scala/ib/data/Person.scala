@@ -1,6 +1,6 @@
 package ib.data
 
-import _root_.annotation.{entity, index, partitionKey}
+import ib.annotation.{entity, index, partitionKey}
 
 /**
  * Created by qili on 25/08/2015.
