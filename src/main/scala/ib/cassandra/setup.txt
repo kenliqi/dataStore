@@ -1,0 +1,6 @@
+1. start & stop
+cassandra
+pkill -f CassandraDaemon
+cqlsh
+2.
+

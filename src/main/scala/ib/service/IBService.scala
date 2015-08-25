@@ -1,6 +1,7 @@
 package ib.service
 
 import akka.actor.Actor
+import ib.data.Person
 import ib.handler.CalPi
 import spray.http.MediaTypes
 import spray.http.MediaTypes._
@@ -37,6 +38,15 @@ trait IBService extends HttpService {
         complete {
           val pi = new CalPi().process
           marshal(pi)
+        }
+      }
+    }
+  } ~ path("person") {
+    get {
+      respondWithMediaType(MediaTypes.`application/json`) {
+        complete {
+          val p = new Person("ken", "pku", 30)
+          marshal(p.toJsonString)
         }
       }
     }

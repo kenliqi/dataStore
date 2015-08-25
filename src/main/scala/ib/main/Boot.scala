@@ -1,4 +1,4 @@
-package ib.test
+package ib.main
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO

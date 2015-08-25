@@ -1,14 +1,8 @@
 package ib.handler
 
 import ib.data.Pi
+import ib.data.formatter.JsonFormatter._
 import org.apache.spark.{SparkConf, SparkContext}
-import spray.json.DefaultJsonProtocol
-
-object MyJsonProtocol extends DefaultJsonProtocol {
-  implicit val colorFormat = jsonFormat1(Pi)
-}
-
-import ib.handler.MyJsonProtocol._
 import spray.json._
 
 /**
