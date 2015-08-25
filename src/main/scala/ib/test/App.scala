@@ -1,6 +1,6 @@
-package ib
+package ib.test
 
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 
 
 /**

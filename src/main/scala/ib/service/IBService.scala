@@ -1,26 +1,25 @@
-package ib
+package ib.service
 
-import ib.handler.CalPi
-import spray.httpx.marshalling._
 import akka.actor.Actor
-import ib.data.Pi
+import ib.handler.CalPi
 import spray.http.MediaTypes
-import spray.json.DefaultJsonProtocol
+import spray.http.MediaTypes._
+import spray.httpx.marshalling._
 import spray.routing.HttpService
-import MediaTypes._
 
 /**
  * Created by qili on 23/08/2015.
  */
 class IBServiceActor extends IBService with Actor {
   def actorRefFactory = context
+
   def receive = runRoute(routeHandler)
 }
 
-trait IBService extends HttpService{
+trait IBService extends HttpService {
   val routeHandler = path("") {
     get {
-      respondWithMediaType(`text/html`)  {
+      respondWithMediaType(`text/html`) {
         complete {
           <html>
             <content>
