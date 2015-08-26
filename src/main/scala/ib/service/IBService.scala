@@ -1,12 +1,14 @@
 package ib.service
 
 import akka.actor.Actor
-import ib.data.Person
+import ib.data.{Persons, Person}
 import ib.handler.CalPi
 import spray.http.MediaTypes
 import spray.http.MediaTypes._
 import spray.httpx.marshalling._
 import spray.routing.HttpService
+import ib.data.formatter.JsonFormatter._
+import ib.Env
 
 /**
  * Created by qili on 23/08/2015.
@@ -45,8 +47,11 @@ trait IBService extends HttpService {
     get {
       respondWithMediaType(MediaTypes.`application/json`) {
         complete {
-          val p = new Person("ken", "pku", 30)
-          marshal(p.toJsonString)
+
+          implicit val env = Env.DEV
+          val p = Persons.all.collect
+          val res = "{" + p.map(_.toJsonString).mkString(",") + "}"
+          marshal(res)
         }
       }
     }

@@ -12,8 +12,8 @@ trait DAL {
 
   def createSchema(e: Class[_]): Boolean
 
-  def persist[T: ClassTag](e: T): T
+  def persist[T](e: T)(implicit tag: ClassTag[T]): T
 
   //TODO: need more thinking
-  def query[T: ClassTag](q: String): Seq[T]
+  def query[T](q: String)(implicit tag: ClassTag[T]): Seq[T]
 }

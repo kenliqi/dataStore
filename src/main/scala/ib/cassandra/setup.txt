@@ -4,3 +4,17 @@ pkill -f CassandraDaemon
 cqlsh
 2.
 
+CREATE KEYSPACE DEV
+WITH REPLICATION = { 'class' : 'SimpleStrategy', 'replication_factor' : 1 };
+
+use DEV;
+
+CREATE TABLE ib_data_Person (
+  name text PRIMARY KEY,
+  school text,
+  age int
+);
+
+
+INSERT INTO DEV.ib_data_Person (name, school, age) VALUES ('Ken', 'PKU', 23);
+INSERT INTO DEV.ib_data_Person (name, school, age) VALUES ('Jill', 'PKU', 20);

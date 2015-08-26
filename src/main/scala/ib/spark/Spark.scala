@@ -9,7 +9,7 @@ object Spark {
 
   val SparkCleanerTtl = 60 * 1000
   val SparkMaster = "local[2]"
-  val CassandraSeed = "localhost:9042"
+  val CassandraSeed = "localhost"
 
   implicit lazy val sc = {
     val conf = new SparkConf(true).setAppName("IB computing service")
