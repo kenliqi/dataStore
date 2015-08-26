@@ -19,4 +19,5 @@ object Spark {
     //    conf.set("spark.master", "local[2]")
     new SparkContext(conf)
   }
+
 }
