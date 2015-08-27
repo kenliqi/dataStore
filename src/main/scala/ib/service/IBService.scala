@@ -1,6 +1,8 @@
 package ib.service
 
 import akka.actor.Actor
+import ib.Env
+import ib.Env.Env
 import ib.data.{Persons, Person}
 import ib.handler.CalPi
 import spray.http.MediaTypes
@@ -13,13 +15,15 @@ import ib.Env
 /**
  * Created by qili on 23/08/2015.
  */
-class IBServiceActor extends IBService with Actor {
+class IBServiceActor(val env: Env) extends IBService with Actor {
+
   def actorRefFactory = context
 
   def receive = runRoute(routeHandler)
 }
 
 trait IBService extends HttpService {
+  implicit val env: Env.Value
   val routeHandler = path("") {
     get {
       respondWithMediaType(`text/html`) {
@@ -47,13 +51,16 @@ trait IBService extends HttpService {
     get {
       respondWithMediaType(MediaTypes.`application/json`) {
         complete {
-
-          implicit val env = Env.DEV
           val p = Persons.all.collect
           val res = "{" + p.map(_.toJsonString).mkString(",") + "}"
           marshal(res)
         }
       }
     }
+  } ~ path("person" / Segment) { name => {
+    import spray.json._
+    complete(Persons.all.filter(_.name == name).collect.toJson.prettyPrint)
+  }
+
   }
 }
