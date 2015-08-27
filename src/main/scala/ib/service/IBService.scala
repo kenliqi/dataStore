@@ -1,6 +1,6 @@
 package ib.service
 
-import akka.actor.Actor
+import akka.actor.{ActorLogging, Props, Actor}
 import ib.Env
 import ib.Env.Env
 import ib.data.{Persons, Person}
@@ -8,21 +8,20 @@ import ib.handler.CalPi
 import spray.http.MediaTypes
 import spray.http.MediaTypes._
 import spray.httpx.marshalling._
-import spray.routing.HttpService
+import spray.routing.{HttpServiceActor, HttpService}
 import ib.data.formatter.JsonFormatter._
 import ib.Env
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
  * Created by qili on 23/08/2015.
  */
-class IBServiceActor(val env: Env) extends IBService with Actor {
-
-  def actorRefFactory = context
+class IBServiceActor(val env: Env) extends IBService with ActorLogging {
 
   def receive = runRoute(routeHandler)
 }
 
-trait IBService extends HttpService {
+trait IBService extends HttpServiceActor {
   implicit val env: Env.Value
   val routeHandler = path("") {
     get {
@@ -60,7 +59,19 @@ trait IBService extends HttpService {
   } ~ path("person" / Segment) { name => {
     import spray.json._
     complete(Persons.all.filter(_.name == name).collect.toJson.prettyPrint)
+  } ~ path("countdown") {
+    get {
+      request => {
+        println("Start counting down...")
+        context.actorOf(Props(classOf[CountDownStream], request.responder, 10))
+      }
+    }
+  } ~ path("countdown" / Segment) { secs => {
+    get {
+      request => context.actorOf(Props(classOf[CountDownStream], request.responder, secs))
+    }
+  }
+  }
   }
 
-  }
 }
