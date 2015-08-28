@@ -56,9 +56,18 @@ trait IBService extends HttpServiceActor {
         }
       }
     }
-  } ~ path("person" / Segment) { name => {
-    import spray.json._
-    complete(Persons.all.filter(_.name == name).collect.toJson.prettyPrint)
+  } ~ pathPrefix("person" / Segment) { name => {
+    pathEnd {
+      get {
+        import spray.json._
+        complete(Persons.all.filter(_.name == name).collect.toJson.prettyPrint)
+      }
+    } ~ path("orders") {
+      get {
+        complete("No orders so far!")
+      }
+    }
+  }
   } ~ path("countdown") {
     get {
       request => {
@@ -66,11 +75,10 @@ trait IBService extends HttpServiceActor {
         context.actorOf(Props(classOf[CountDownStream], request.responder, 10))
       }
     }
-  } ~ path("countdown" / Segment) { secs => {
+  } ~ path("countdown" / IntNumber) { secs => {
     get {
-      request => context.actorOf(Props(classOf[CountDownStream], request.responder, secs))
+      request => context.actorOf(Props(classOf[CountDownStream], request.responder, secs.toInt))
     }
-  }
   }
   }
 
