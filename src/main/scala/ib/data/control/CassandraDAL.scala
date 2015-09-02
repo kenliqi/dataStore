@@ -25,7 +25,7 @@ class CassandraDAL(val keySpace: String) extends DAL {
     val table: String = tag.runtimeClass.getName
     val rdd: CassandraRDD[CassandraRow] = sc.cassandraTable(keySpace, table)
 
-    //TODO: convert the CassandraRow into genric T
+    //TODO: convert the CassandraRow into generic T
     rdd.collect().toSeq
     Seq.empty
   }

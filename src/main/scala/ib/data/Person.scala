@@ -1,8 +1,9 @@
 package ib.data
 
-import com.sun.tools.javac.code.TypeTag
 import ib.Env
 import ib.annotation.{entity, index, partitionKey}
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.cassandra.CassandraSQLContext
 import spray.json._
 import ib.data.formatter.JsonFormatter._
 import com.datastax.spark.connector._
@@ -23,12 +24,34 @@ trait Generic {
   implicit def envToString(e: Env.Value) = e.toString.toLowerCase
 
   implicit def classToString(c: Class[_]) = c.getName.replace('.', '_').toLowerCase()
+
+  implicit def sparkToCassandraContext(sc: SparkContext): CassandraSQLContext = {
+    new CassandraSQLContext(sc)
+  }
 }
 
 
 //TODO: Can we generate the following code automatically for developers?
 object Persons extends Generic {
   def all(implicit env: Env.Value) = sc.cassandraTable[Person](env, classOf[Person])
+
+  def save(persons: Seq[Person])(implicit env: Env.Value) = {
+    val rdd = sc.parallelize(persons)
+    if (!tableExists) {
+      println("Creating the table " + env + "." + classOf[Person])
+      rdd.saveAsCassandraTable(env, classOf[Person])
+    }
+
+    else
+      rdd.saveToCassandra(env, classOf[Person])
+  }
+
+  //TODO: Currently the adaptor doesn't support this query, it will always assume this is query against table
+  def tableExists(implicit env: Env.Value): Boolean = {
+    val res = sc.sql("describe tables")
+    //        !res.collect().contains(_.equals(classToString(classOf[Person])))
+    true
+  }
 }
 
 //

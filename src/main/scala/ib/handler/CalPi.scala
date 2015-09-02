@@ -11,11 +11,9 @@ import spray.json._
 class CalPi extends Handler {
   @Override
   def process: String = {
-    val conf = new SparkConf().setAppName("Calculate Pi")
-    conf.set("spark.master", "local[2]")
-    val spark = new SparkContext(conf)
+    import ib.spark.Spark._
     val n = 9999999
-    val pi: Double = (spark.parallelize(1 to n, 2) map {
+    val pi: Double = (sc.parallelize(1 to n, 2) map {
       i => {
         val x = Math.random * 2 - 1
         val y = Math.random * 2 - 1
