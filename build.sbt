@@ -20,7 +20,7 @@ libraryDependencies ++= {
     "org.apache.spark" %% "spark-core" % sparkV,
     "org.apache.spark" % "spark-sql_2.11" % sparkV,
     //    "org.apache.spark" % "spark-repl_2.11" % sparkV,
-    //    "org.apache.spark" % "spark-streaming_2.11" % sparkV,
+    "org.apache.spark" % "spark-streaming_2.11" % sparkV,
     //    "org.apache.spark" % "spark-mllib_2.11" % sparkV,
     "junit" % "junit" % "4.4" % "test",
     "io.spray" %% "spray-json" % "1.3.2",

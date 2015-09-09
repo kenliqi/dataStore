@@ -48,10 +48,12 @@ object Persons extends Generic {
 
   //TODO: Currently the adaptor doesn't support this query, it will always assume this is query against table
   def tableExists(implicit env: Env.Value): Boolean = {
-    val res = sc.sql("describe tables")
+    //    val res = sc.sql("describe tables")
     //        !res.collect().contains(_.equals(classToString(classOf[Person])))
     true
   }
+
+  def query(sql: String)(implicit env: Env.Value) = sc.sql(sql)
 }
 
 //

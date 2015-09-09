@@ -5,7 +5,7 @@ import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
 import ib.Env
-import ib.service.IBServiceActor
+import ib.service.{DamonServices, IBServiceActor}
 import spray.can.Http
 
 import scala.concurrent.duration._
@@ -19,5 +19,8 @@ object Boot extends App {
 
   implicit val timeout = Timeout(5.seconds)
 
+  //Run some Damon services in background
+  DamonServices.run
+  //Start up the http server
   IO(Http) ? Http.Bind(service, interface = "localhost", port = 8080)
 }
