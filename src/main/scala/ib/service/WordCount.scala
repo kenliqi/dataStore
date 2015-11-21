@@ -37,6 +37,7 @@ object WordCountService extends Generic with IService {
 
     val existingRdd = ssc.cassandraTable[WordCount](env, classOf[WordCount])
 
+    //TODO: it's inner join, can we have outter join or left join here?
     val rdd = newRdd.joinWithCassandraTable(env, classOf[WordCount]).map { case (newWc, oldWc) => WordCount(newWc.word, newWc.count + oldWc.getInt("count")) }
 
     rdd.saveToCassandra(env, classOf[WordCount])
