@@ -72,7 +72,7 @@ object Persons extends Generic {
 //
 //  def main(args: Array[String]) {
 //    val u = new User("ken", "test")
-//    User.all.filter(_.name=="Jill").foreach(println)
+//    User.all.filter(_.name=="qili").foreach(println)
 //  }
 //
 //}
