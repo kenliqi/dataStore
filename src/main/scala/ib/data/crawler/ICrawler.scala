@@ -1,8 +1,4 @@
-package ib.data.stock
-
-import java.io.FileOutputStream
-import java.net.URL
-import java.nio.channels.{Channels, ReadableByteChannel}
+package ib.data.crawler
 
 import scala.concurrent.duration.Duration
 

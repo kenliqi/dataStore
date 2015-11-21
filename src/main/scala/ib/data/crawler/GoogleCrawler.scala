@@ -1,11 +1,10 @@
-package ib.data.stock.impl
+package ib.data.crawler
 
 import java.io._
 import java.net.{URL, URLConnection}
 import java.util.Date
 
 import ib.data.Quote
-import ib.data.stock.ICrawler
 import ib.util.DurationUtil
 
 import scala.concurrent.duration.Duration

@@ -1,6 +1,7 @@
-package ib.data
+package ib.data.loader
 
 import ib.data.stock.{Stock, StockRegistry}
+import ib.data.{Quotes, TimeSeries}
 
 /**
   * Created by qili on 2015/9/11.

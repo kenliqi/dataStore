@@ -1,5 +1,6 @@
-package ib.data
+package ib.data.loader
 
+import ib.data.TimeSeries
 import ib.data.stock.Stock
 
 /**
