@@ -27,10 +27,9 @@ class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
 
     val file = (filePath + ticker + ".txt")
     val fileSaver = new FileSaver[Quote](file, (f, q) => {
-      val lastLine = FileUtil.lastLine(file)
-      if (lastLine.isEmpty) true
-      else {
-        q.date.after(Quotes.parse(lastLine).date)
+      FileUtil.lastLine(file) match {
+        case Some(s) => q.date.after(Quotes.parse(s).date)
+        case _ => true
       }
     })
 
@@ -48,12 +47,11 @@ class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
 
     if (null == input) {
       logger.error(s"There is no data for $ticker - url[$url]")
-      false
     } else {
-
       //Now saving the valuable data
       var date: Long = input.split(",").apply(0).substring(1).toLong * 1000
       input = br.readLine()
+      var count = 0
       while (null != input) {
         val line = input.split(",")
         val tag = line.apply(0)
@@ -74,9 +72,10 @@ class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
 
         val quote = Quote(new Date(dateTime), open, close, high, low, volume)
 
-        fileSaver.save(quote)
+        if (fileSaver.save(quote)) count = count + 1
         input = br.readLine()
       }
+      logger.info(s"Saved $count new quotes for $ticker")
     }
 
     fileSaver.close

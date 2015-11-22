@@ -34,7 +34,7 @@ class FileSaver[T](file: String, saveCheck: (String, T) => Boolean) extends ISav
 
 
 object FileUtil {
-  def lastLine(file: String): String = {
-    Source.fromFile(file).getLines().toSeq.last
+  def lastLine(file: String): Option[String] = {
+    Source.fromFile(file).getLines().toSeq.lastOption
   }
 }
