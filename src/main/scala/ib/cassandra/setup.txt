@@ -16,5 +16,31 @@ CREATE TABLE ib_data_Person (
 );
 
 
+CREATE TABLE ib_data_TickerQuote (
+  ticker varchar,
+  date timestamp,
+  open double,
+  close double,
+  high double,
+  low double,
+  volume double,
+  PRIMARY KEY (ticker,date)
+) with clustering order by (date desc);
+
+
+ib_cassandra_tickerquote
+
+CREATE TABLE ib_cassandra_tickerquote (
+  ticker varchar,
+  date timestamp,
+  open double,
+  close double,
+  high double,
+  low double,
+  volume double,
+  PRIMARY KEY (ticker,date)
+) with clustering order by (date desc);
+
+
 INSERT INTO DEV.ib_data_Person (name, school, age) VALUES ('Ken', 'PKU', 23);
 INSERT INTO DEV.ib_data_Person (name, school, age) VALUES ('Jill', 'PKU', 20);

@@ -8,4 +8,6 @@ import java.text.SimpleDateFormat
 object DateUtil {
   val SDF = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
   val DATE = new SimpleDateFormat("yyyy-MM-dd")
+
+  val EdenTime = DATE.parse("2015-11-02")
 }

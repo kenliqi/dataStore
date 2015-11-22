@@ -91,7 +91,7 @@ class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
   }
 
   def beNiceToGoogle = {
-    val sleepSec = (Math.random() * 10 + 5).toInt
+    val sleepSec = (Math.random() * 5 + 1).toInt
     println(s"sleeping for $sleepSec seconds...")
     Thread.sleep(sleepSec * 1000)
   }
