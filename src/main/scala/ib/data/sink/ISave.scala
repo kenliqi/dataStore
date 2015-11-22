@@ -1,6 +1,10 @@
 package ib.data.sink
 
 import java.io.{FileOutputStream, PrintStream, File}
+import java.util.Date
+
+import ib.util.DateUtil
+import org.joda.time.DateTime
 
 import scala.io.Source
 
@@ -19,7 +23,7 @@ class FileSaver[T](file: String, saveCheck: (String, T) => Boolean) extends ISav
   if (!outputFile.exists()) {
     outputFile.createNewFile()
   }
-  val fos = new PrintStream(new FileOutputStream(outputFile))
+  val fos = new PrintStream(new FileOutputStream(outputFile, true))
 
   override def save(data: T): Boolean = {
     if (saveCheck(file, data)) {
@@ -36,5 +40,15 @@ class FileSaver[T](file: String, saveCheck: (String, T) => Boolean) extends ISav
 object FileUtil {
   def lastLine(file: String): Option[String] = {
     Source.fromFile(file).getLines().toSeq.lastOption
+  }
+
+  def updatedToday(file: String) = {
+    val f = new File(file)
+    val today = DateUtil.DATE.format(DateTime.now().toDate)
+
+    f.exists() && {
+      val lastUpdate = DateUtil.DATE.format(new Date(f.lastModified()))
+      lastUpdate >= today
+    }
   }
 }

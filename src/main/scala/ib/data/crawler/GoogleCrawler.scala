@@ -26,61 +26,68 @@ class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
     System.setProperty("user.timezone", "America/New_York")
 
     val file = (filePath + ticker + ".txt")
-    val fileSaver = new FileSaver[Quote](file, (f, q) => {
-      FileUtil.lastLine(file) match {
-        case Some(s) => q.date.after(Quotes.parse(s).date)
-        case _ => true
-      }
-    })
-
-    val url = getUrl(ticker, duration, periods)
-    println(s"Downloading ", url)
-    val conn: URLConnection = new URL(url).openConnection()
-
-    // open the stream and put it into BufferedReader
-    val br: BufferedReader = new BufferedReader(
-      new InputStreamReader(conn.getInputStream()))
-
-    var input = br.readLine()
-    //skip the header
-    while (null != input && !input.startsWith("a144")) input = br.readLine()
-
-    if (null == input) {
-      logger.error(s"There is no data for $ticker - url[$url]")
+    if (FileUtil.updatedToday(file)) {
+      logger.info(s"ticker has been updated today, ignore and continue")
+      true
     } else {
-      //Now saving the valuable data
-      var date: Long = input.split(",").apply(0).substring(1).toLong * 1000
-      input = br.readLine()
-      var count = 0
-      while (null != input) {
-        val line = input.split(",")
-        val tag = line.apply(0)
-        var dateTime: Long = date
-        if (tag.startsWith("a144")) {
-          println("reset the date!")
-          date = tag.substring(1).toLong * 1000
-          dateTime = date
-        } else {
-          dateTime = date + line.apply(0).toInt * 60 * 1000
+
+      val fileSaver = new FileSaver[Quote](file, (f, q) => {
+        FileUtil.lastLine(file) match {
+          case Some(s) => q.date.after(Quotes.parse(s).date)
+          case _ => true
         }
+      })
+      val url = getUrl(ticker, duration, periods)
+      println(s"Downloading ", url)
+      val conn: URLConnection = new URL(url).openConnection()
 
-        val close = line.apply(1).toDouble
-        val high = line.apply(2).toDouble
-        val low = line.apply(3).toDouble
-        val open = line.apply(4).toDouble
-        val volume = line.apply(5).toDouble
+      // open the stream and put it into BufferedReader
+      val br: BufferedReader = new BufferedReader(
+        new InputStreamReader(conn.getInputStream()))
 
-        val quote = Quote(new Date(dateTime), open, close, high, low, volume)
+      var input = br.readLine()
+      //skip the header
+      while (null != input && !input.startsWith("a144")) input = br.readLine()
 
-        if (fileSaver.save(quote)) count = count + 1
+      if (null == input) {
+        logger.error(s"There is no data for $ticker - url[$url]")
+      } else {
+        //Now saving the valuable data
+        var date: Long = input.split(",").apply(0).substring(1).toLong * 1000
         input = br.readLine()
+        var count = 0
+        while (null != input) {
+          val line = input.split(",")
+          val tag = line.apply(0)
+          var dateTime: Long = date
+          if (tag.startsWith("a144")) {
+            println("reset the date!")
+            date = tag.substring(1).toLong * 1000
+            dateTime = date
+          } else {
+            dateTime = date + line.apply(0).toInt * 60 * 1000
+          }
+
+          val close = line.apply(1).toDouble
+          val high = line.apply(2).toDouble
+          val low = line.apply(3).toDouble
+          val open = line.apply(4).toDouble
+          val volume = line.apply(5).toDouble
+
+          val quote = Quote(new Date(dateTime), open, close, high, low, volume)
+
+          if (fileSaver.save(quote)) count = count + 1
+          input = br.readLine()
+        }
+        logger.info(s"Saved $count new quotes for $ticker")
       }
-      logger.info(s"Saved $count new quotes for $ticker")
+
+      fileSaver.close
+      beNiceToGoogle
+      true
     }
 
-    fileSaver.close
-    beNiceToGoogle
-    true
+
   }
 
   def beNiceToGoogle = {
