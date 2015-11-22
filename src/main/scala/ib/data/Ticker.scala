@@ -1,10 +1,12 @@
 package ib.data
 
+import ib.data.stock.StockRegistry
 import ib.util.ConversionUtil
 
 import scala.io.Source
 import java.io.{FileOutputStream, PrintStream, File}
 import scala.util.Try
+import ConversionUtil._
 
 /**
   * Created by qili on 21/11/2015.
@@ -23,19 +25,25 @@ case class Ticker(symbol: String, name: String, exchange: Exchange, marketCap: O
 
 object Ticker {
   def header = "symbol, name, exchange, marketCap, IPOYear, sector, industry, summary"
+
+  def apply(s: String): Ticker = {
+    val data = s.split(",")
+    assert(data.size >= 8)
+    Ticker(data.apply(0), data.apply(1), Exchange.valueOf(data.apply(2)),
+      Try(data.apply(3).toDouble), Try(data.apply(4).toInt), data.apply(5), data.apply(6), data.apply(7))
+  }
 }
 
 case class InvalidDataException(msg: String) extends Exception(msg)
 
 object TickerLoader {
 
-  import ConversionUtil._
+
 
   val path = "/Users/qili/finance/refdata"
-  val tickers = "ticker.csv"
 
   def main(args: Array[String]) {
-    val tickerFile = new File("/Users/qili/finance/" + tickers)
+    val tickerFile = new File(StockRegistry.stockFile)
     tickerFile.createNewFile()
     val fos = new PrintStream(new FileOutputStream(tickerFile))
     fos.append(Ticker.header + "\n")

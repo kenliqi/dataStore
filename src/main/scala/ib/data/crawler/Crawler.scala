@@ -22,7 +22,7 @@ object Crawler {
         case Daily => 1
         case Batch => 15 //Google allows at most 15 past days
       }
-      crawler.run(stock.ticker, 60.seconds, days)
+      crawler.run(stock.symbol, 60.seconds, days)
     }
   }
 }
