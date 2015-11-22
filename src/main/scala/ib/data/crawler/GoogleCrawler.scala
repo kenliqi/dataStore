@@ -4,17 +4,25 @@ import java.io._
 import java.net.{URL, URLConnection}
 import java.util.Date
 
+import ib.Env
+import ib.cassandra.TickerQuote
 import ib.common.Loggable
 import ib.data.{Quotes, Quote}
-import ib.data.sink.{FileUtil, FileSaver}
+import ib.data.sink.{CassandraQuoteSaver, ISave, FileUtil, FileSaver}
 import ib.util.DurationUtil
 
 import scala.concurrent.duration.Duration
 
+object SaveType extends Enumeration {
+  val Cassandra, File = Value
+}
+
+import SaveType._
+
 /**
   * Created by Ken on 2015/9/10.
   */
-class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
+class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) extends ICrawler with Loggable {
 
   val template: String = """http://www.google.com/finance/getprices?i=%s&p=%sd&f=d,o,h,l,c,v&df=cpct&q=%s"""
 
@@ -31,12 +39,21 @@ class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
       true
     } else {
 
-      val fileSaver = new FileSaver[Quote](file, (f, q) => {
-        FileUtil.lastLine(file) match {
-          case Some(s) => q.date.after(Quotes.parse(s).date)
-          case _ => true
+      val saver: ISave[TickerQuote] = saveType match {
+        case Cassandra => {
+          implicit val env = Env.DEV
+          new CassandraQuoteSaver
         }
-      })
+        case _ => {
+          new FileSaver[TickerQuote](file, (f, q) => {
+            val ticker = f.split("/").last.replace(".txt", "")
+            FileUtil.lastLine(file) match {
+              case Some(s) => q.date.after(TickerQuote(ticker, s).date)
+              case _ => true
+            }
+          })
+        }
+      }
       val url = getUrl(ticker, duration, periods)
       println(s"Downloading ", url)
       val conn: URLConnection = new URL(url).openConnection()
@@ -55,7 +72,7 @@ class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
         //Now saving the valuable data
         var date: Long = input.split(",").apply(0).substring(1).toLong * 1000
         input = br.readLine()
-        var count = 0
+        var list = new scala.collection.mutable.MutableList[TickerQuote]
         while (null != input) {
           val line = input.split(",")
           val tag = line.apply(0)
@@ -74,15 +91,17 @@ class GoogleCrawler(filePath: String) extends ICrawler with Loggable {
           val open = line.apply(4).toDouble
           val volume = line.apply(5).toDouble
 
-          val quote = Quote(new Date(dateTime), open, close, high, low, volume)
+          val quote = TickerQuote(ticker, new Date(dateTime), open, close, high, low, volume)
 
-          if (fileSaver.save(quote)) count = count + 1
+          list += quote
+
           input = br.readLine()
         }
+        val count = saver.saveAll(list)
         logger.info(s"Saved $count new quotes for $ticker")
       }
 
-      fileSaver.close
+      saver.close
       beNiceToGoogle
       true
     }

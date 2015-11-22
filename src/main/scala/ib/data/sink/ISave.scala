@@ -14,7 +14,7 @@ import scala.io.Source
 trait ISave[T] {
   def save(data: T): Boolean
 
-  def saveAll(data: Seq[T])
+  def saveAll(data: Seq[T]): Int
 
   def close
 }
@@ -35,7 +35,7 @@ class FileSaver[T](file: String, saveCheck: (String, T) => Boolean) extends ISav
     } else false
   }
 
-  override def saveAll(data: Seq[T]) = data foreach { d => save(d) }
+  override def saveAll(data: Seq[T]) = data.map(d => save(d)).count(_ == true)
 
   override def close: Unit = fos.close()
 }

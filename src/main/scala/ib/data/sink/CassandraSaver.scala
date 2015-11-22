@@ -31,15 +31,18 @@ class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[TickerQuote] wi
     } else false
   }
 
-  override def saveAll(data: Seq[TickerQuote]): Unit = {
+  override def saveAll(data: Seq[TickerQuote]): Int = {
+    var count = 0
     data.groupBy(_.ticker) foreach {
       case (ticker, d) => {
         val last = lastUpdate(ticker)
         val filterData = d.filter(_.date.after(last))
         sc.parallelize(filterData).saveToCassandra(env, classOf[TickerQuote], TickerQuote.allColumns)
+        count = count + filterData.size
         logger.info(s"Saved ${filterData.size} quotes for $ticker")
       }
     }
+    count
   }
 
   override def close: Unit = logger.info("close the cassandra connection")
