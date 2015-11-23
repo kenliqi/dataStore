@@ -15,7 +15,7 @@ libraryDependencies ++= {
     "org.slf4j" % "slf4j-api" % "1.7.13",
     "ch.qos.logback" % "logback-core" % "1.1.1",
     "ch.qos.logback" % "logback-classic" % "1.1.3",
-    "com.typesafe.akka" % "akka-actor_2.11" % akkaV,
+    //    "com.typesafe.akka" % "akka-actor_2.11" % akkaV,
     "io.spray" %% "spray-can" % sprayV,
     "io.spray" %% "spray-routing" % sprayV,
     "io.spray" %% "spray-testkit" % sprayV % "test",
@@ -32,3 +32,20 @@ libraryDependencies ++= {
   )
 }
 
+assemblyJarName in assembly := "dataPlatform.jar"
+
+test in assembly := {}
+
+
+assemblyMergeStrategy in assembly := {
+  case PathList("org", "apache", xs@_*) => MergeStrategy.first
+  case PathList("io", "dropwizard", xs@_*) => MergeStrategy.first
+  case PathList("com", "google", "common", "base", xs@_*) => MergeStrategy.first
+  case PathList("com", "codahale", "metrics", xs@_*) => MergeStrategy.first
+  case PathList("com", "esotericsoftware", "minlog", xs@_*) => MergeStrategy.first
+  case PathList(ps@_*) if ps.last endsWith ".html" => MergeStrategy.first
+  case "application.conf" => MergeStrategy.concat
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}

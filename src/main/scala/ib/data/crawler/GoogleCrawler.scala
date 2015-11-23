@@ -33,27 +33,27 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) exte
   def run(ticker: String, duration: Duration, periods: Int): Boolean = {
     System.setProperty("user.timezone", "America/New_York")
 
-    val file = (filePath + ticker + ".txt")
-    if (FileUtil.updatedToday(file)) {
-      logger.info(s"ticker has been updated today, ignore and continue")
+    val saver: ISave[TickerQuote] = saveType match {
+      case Cassandra => {
+        implicit val env = Env.DEV
+        new CassandraQuoteSaver
+      }
+      case _ => {
+        val file = (filePath + ticker + ".txt")
+        new FileSaver[TickerQuote](file, (f, q) => {
+          val ticker = f.split("/").last.replace(".txt", "")
+          FileUtil.lastLine(file) match {
+            case Some(s) => q.date.after(TickerQuote(ticker, s).date)
+            case _ => true
+          }
+        })
+      }
+    }
+    if (saver.updateToday(ticker)) {
+      logger.info(s"$ticker has been updated today, ignore bothering Google")
       true
     } else {
 
-      val saver: ISave[TickerQuote] = saveType match {
-        case Cassandra => {
-          implicit val env = Env.DEV
-          new CassandraQuoteSaver
-        }
-        case _ => {
-          new FileSaver[TickerQuote](file, (f, q) => {
-            val ticker = f.split("/").last.replace(".txt", "")
-            FileUtil.lastLine(file) match {
-              case Some(s) => q.date.after(TickerQuote(ticker, s).date)
-              case _ => true
-            }
-          })
-        }
-      }
       val url = getUrl(ticker, duration, periods)
       println(s"Downloading ", url)
       val conn: URLConnection = new URL(url).openConnection()

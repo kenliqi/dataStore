@@ -12,6 +12,9 @@ import scala.io.Source
   * Created by qili on 22/11/2015.
   */
 trait ISave[T] {
+
+  def updateToday(ticker: String): Boolean
+
   def save(data: T): Boolean
 
   def saveAll(data: Seq[T]): Int
@@ -25,6 +28,9 @@ class FileSaver[T](file: String, saveCheck: (String, T) => Boolean) extends ISav
   if (!outputFile.exists()) {
     outputFile.createNewFile()
   }
+
+  override def updateToday(ticker: String): Boolean = FileUtil.updatedToday(file)
+
   val fos = new PrintStream(new FileOutputStream(outputFile, true))
 
   override def save(data: T): Boolean = {

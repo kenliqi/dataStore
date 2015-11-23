@@ -9,17 +9,24 @@ import ib.data.Generic
 import ib.spark.Spark._
 import com.datastax.spark.connector._
 import ib.util.DateUtil
+import org.joda.time.DateTime
 
 
 /**
   * Created by qili on 22/11/2015.
   */
 class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[TickerQuote] with Generic with Loggable {
-  def all = sc.cassandraTable[TickerQuote](env, classOf[TickerQuote])
+  def all = sc.cassandraTable(env, classOf[TickerQuote])
+
+  override def updateToday(ticker: String): Boolean = {
+    val last = DateUtil.DATE.format(lastUpdate(ticker))
+    val today = DateUtil.DATE.format(DateTime.now().toDate)
+    last >= today
+  }
 
   def lastUpdate(ticker: String): Date = {
-    val data = all.filter(_.ticker == ticker)
-    if (data.count() > 0) data.first.date
+    val data = all.select("date").where("ticker = ?", ticker).limit(1)
+    if (data.count() > 0) data.first.getDate("date")
     else DateUtil.EdenTime
   }
 
