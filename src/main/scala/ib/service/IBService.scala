@@ -50,8 +50,9 @@ trait IBService extends HttpServiceActor {
     get {
       respondWithMediaType(MediaTypes.`application/json`) {
         complete {
+          import spray.json._
           val p = Persons.all.collect
-          val res = "{" + p.map(_.toJsonString).mkString(",") + "}"
+          val res = "{" + p.toJson + "}"
           marshal(res)
         }
       }

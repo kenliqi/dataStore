@@ -22,5 +22,5 @@ object Boot extends App {
   //Run some Damon services in background
   DamonServices.run
   //Start up the http server
-  IO(Http) ? Http.Bind(service, interface = "localhost", port = 8080)
+  IO(Http) ? Http.Bind(service, interface = "0.0.0.0", port = 8080)
 }
