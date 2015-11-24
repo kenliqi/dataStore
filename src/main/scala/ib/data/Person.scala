@@ -1,5 +1,6 @@
 package ib.data
 
+import com.datastax.driver.core.ConsistencyLevel
 import ib.Env
 import ib.annotation.{entity, index, partitionKey}
 import org.apache.spark.SparkContext
@@ -7,7 +8,7 @@ import org.apache.spark.sql.cassandra.CassandraSQLContext
 import spray.json._
 import ib.data.formatter.JsonFormatter._
 import com.datastax.spark.connector._
-import com.datastax.spark.connector.rdd.CassandraRDD
+import com.datastax.spark.connector.rdd.{ReadConf, CassandraRDD}
 import ib.spark.Spark._
 
 
@@ -28,6 +29,9 @@ trait Generic {
   implicit def sparkToCassandraContext(sc: SparkContext): CassandraSQLContext = {
     new CassandraSQLContext(sc)
   }
+
+  implicit val readConf = ReadConf(splitCount = Some(2), consistencyLevel = ConsistencyLevel.LOCAL_ONE) //As we only run locally, there are just 2 cores, so we create 2 partitions, others option as below,
+
 }
 
 
