@@ -110,9 +110,9 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) exte
   }
 
   def beNiceToGoogle = {
-    val sleepSec = (Math.random() * 5 + 1).toInt
-    println(s"sleeping for $sleepSec seconds...")
-    Thread.sleep(sleepSec * 1000)
+    val sleepSec = ((Math.random() * 2 + 1) * 1000).toInt
+    println(s"sleeping for $sleepSec millisecs...")
+    Thread.sleep(sleepSec)
   }
 
 }
