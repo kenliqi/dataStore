@@ -2,14 +2,14 @@ name := "dataStore"
 
 version := "1.0"
 
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.7"
 
 scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 libraryDependencies ++= {
   val sprayV = "1.3.3"
-  val sparkV = "1.4.1"
-  val cassandraConnectorV = "1.4.0-M3"
+  val sparkV = "1.5.2"
+  val cassandraConnectorV = "1.5.0-M2"
   val akkaV = "2.4-M3"
   Seq(
     "org.slf4j" % "slf4j-api" % "1.7.13",
