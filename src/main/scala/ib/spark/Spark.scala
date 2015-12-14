@@ -1,5 +1,6 @@
 package ib.spark
 
+import com.datastax.spark.connector.cql.CassandraConnector
 import org.apache.spark.{SparkConf, SparkContext}
 
 /**
@@ -12,14 +13,16 @@ object Spark {
   val CassandraSeed = "localhost"
   val KeepAliveMs = 60 * 1000
 
+  val conf = new SparkConf(true).setAppName("IB computing service")
+    .set("spark.cassandra.connection.host", CassandraSeed)
+    .set("spark.cleaner.ttl", SparkCleanerTtl.toString)
+    .set("spark.cassandra.connection.keep_alive_ms", KeepAliveMs.toString)
+    .setMaster(SparkMaster)
   implicit lazy val sc = {
-    val conf = new SparkConf(true).setAppName("IB computing service")
-      .set("spark.cassandra.connection.host", CassandraSeed)
-      .set("spark.cleaner.ttl", SparkCleanerTtl.toString)
-      .set("spark.cassandra.connection.keep_alive_ms", KeepAliveMs.toString)
-      .setMaster(SparkMaster)
     //    conf.set("spark.master", "local[2]")
     new SparkContext(conf)
   }
+
+  implicit lazy val connector = CassandraConnector(conf)
 
 }

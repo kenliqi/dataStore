@@ -11,6 +11,18 @@ import scala.concurrent.duration._
 object Crawler {
   def main(args: Array[String]) {
     import CrawlerMode._
+    val days = if (args.length < 1) 1
+    else {
+      try {
+        args.apply(0).toInt
+      } catch {
+        case ex => CrawlerMode.withName(args.apply(0)) match {
+          case Daily => 1
+          case Yesterday => 2
+          case Batch => 15 //Google allows at most 15 past days
+        }
+      }
+    }
     val mode = if (args.length < 1) Daily else CrawlerMode.withName(args.apply(0))
     val filePath = "/Users/qili/finance/data/"
 
@@ -18,15 +30,11 @@ object Crawler {
     for (stock <- StockRegistry.all) {
       println(s"Snapping the stock $stock")
       val crawler = new GoogleCrawler(filePath)
-      val days = mode match {
-        case Daily => 1
-        case Batch => 15 //Google allows at most 15 past days
-      }
       crawler.run(stock.symbol, 60.seconds, days)
     }
   }
 }
 
 object CrawlerMode extends Enumeration {
-  val Daily, Batch = Value
+  val Daily, Yesterday, Batch = Value
 }

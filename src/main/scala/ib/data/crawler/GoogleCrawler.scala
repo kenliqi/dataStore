@@ -64,7 +64,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) exte
 
       var input = br.readLine()
       //skip the header
-      while (null != input && !input.startsWith("a144")) input = br.readLine()
+      while (null != input && !input.startsWith("a1")) input = br.readLine()
 
       if (null == input) {
         logger.error(s"There is no data for $ticker - url[$url]")
