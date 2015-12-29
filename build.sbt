@@ -21,12 +21,13 @@ libraryDependencies ++= {
     "io.spray" %% "spray-testkit" % sprayV % "test",
     "org.specs2" %% "specs2-core" % "2.3.11" % "test",
     "org.apache.spark" %% "spark-core" % sparkV exclude("org.slf4j", "slf4j-log4j12"),
-    "org.apache.spark" % "spark-sql_2.11" % sparkV,
+    "org.apache.spark" %% "spark-sql" % sparkV,
     //    "org.apache.spark" % "spark-repl_2.11" % sparkV,
-    "org.apache.spark" % "spark-streaming_2.11" % sparkV,
+    "org.apache.spark" %% "spark-streaming" % sparkV,
     //    "org.apache.spark" % "spark-mllib_2.11" % sparkV,
     "junit" % "junit" % "4.4" % "test",
     "io.spray" %% "spray-json" % "1.3.2",
+    "org.apache.spark" %% "spark-streaming" % sparkV,
     "com.datastax.spark" %% "spark-cassandra-connector" % cassandraConnectorV
 
   )

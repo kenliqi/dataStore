@@ -77,12 +77,12 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) exte
           val line = input.split(",")
           val tag = line.apply(0)
           var dateTime: Long = date
-          if (tag.startsWith("a144")) {
+          if (tag.startsWith("a1")) {
             println("reset the date!")
             date = tag.substring(1).toLong * 1000
             dateTime = date
           } else {
-            dateTime = date + line.apply(0).toInt * 60 * 1000
+            dateTime = date + line.apply(0).replaceAll("[a-zA-Z]", "").toInt * 60 * 1000
           }
 
           val close = line.apply(1).toDouble

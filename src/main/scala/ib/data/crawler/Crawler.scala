@@ -16,17 +16,17 @@ object Crawler {
       try {
         args.apply(0).toInt
       } catch {
-        case ex => CrawlerMode.withName(args.apply(0)) match {
+        case ex: Throwable => CrawlerMode.withName(args.apply(0)) match {
           case Daily => 1
           case Yesterday => 2
           case Batch => 15 //Google allows at most 15 past days
         }
       }
     }
-    val mode = if (args.length < 1) Daily else CrawlerMode.withName(args.apply(0))
+    //    val mode = if (args.length < 1) Daily else CrawlerMode.withName(args.apply(0))
     val filePath = "/Users/qili/finance/data/"
 
-    println(s"Crawling mode $mode, files saved to $filePath")
+    println(s"Crawling mode $days, files saved to $filePath")
     for (stock <- StockRegistry.all) {
       println(s"Snapping the stock $stock")
       val crawler = new GoogleCrawler(filePath)
