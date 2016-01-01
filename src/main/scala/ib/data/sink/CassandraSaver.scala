@@ -18,6 +18,12 @@ import org.joda.time.DateTime
 class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[TickerQuote] with Generic with Loggable {
   def all = sc.cassandraTable(env, classOf[TickerQuote])
 
+  override def hasThisDay(ticker: String, date: Date): Boolean = {
+    val upperDateTime = new DateTime(date).plusHours(1)
+    val count = all.select("date").where("ticker = ? and date >= ? and date < ?", ticker, date, upperDateTime.toDate).limit(1).count()
+    count > 0
+  }
+
   override def updateToday(ticker: String): Boolean = {
     val last = DateUtil.DATE.format(lastUpdate(ticker))
     val today = DateUtil.DATE.format(DateTime.now().toDate)

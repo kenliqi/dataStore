@@ -15,6 +15,8 @@ trait ISave[T] {
 
   def updateToday(ticker: String): Boolean
 
+  def hasThisDay(ticker: String, date: Date): Boolean
+
   def save(data: T): Boolean
 
   def saveAll(data: Seq[T]): Int
@@ -28,6 +30,8 @@ class FileSaver[T](file: String, saveCheck: (String, T) => Boolean) extends ISav
   if (!outputFile.exists()) {
     outputFile.createNewFile()
   }
+
+  override def hasThisDay(ticker: String, date: Date) = false
 
   override def updateToday(ticker: String): Boolean = FileUtil.updatedToday(file)
 

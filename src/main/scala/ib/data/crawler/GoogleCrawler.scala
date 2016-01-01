@@ -2,6 +2,7 @@ package ib.data.crawler
 
 import java.io._
 import java.net.{URL, URLConnection}
+import java.util
 import java.util.Date
 
 import ib.Env
@@ -9,7 +10,8 @@ import ib.cassandra.TickerQuote
 import ib.common.Loggable
 import ib.data.{Quotes, Quote}
 import ib.data.sink.{CassandraQuoteSaver, ISave, FileUtil, FileSaver}
-import ib.util.DurationUtil
+import ib.util.{DateUtil, DurationUtil}
+import org.joda.time.DateTime
 
 import scala.concurrent.duration.Duration
 
@@ -22,7 +24,19 @@ import SaveType._
 /**
   * Created by Ken on 2015/9/10.
   */
-class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) extends ICrawler with Loggable {
+class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forceDownload: Boolean = false) extends ICrawler with Loggable {
+
+  val dbTickerDaySnapshot = new util.HashMap[(String, String), Boolean]()
+
+  def hasTickerDay(ticker: String, date: Date): Boolean = {
+    val key = (ticker, DateUtil.DATE.format(date))
+    if (!dbTickerDaySnapshot.containsKey(key)) {
+      //first time checking Database where it's saved or not
+      val hasThisDay = tickerSaver(ticker).hasThisDay(ticker, date)
+      dbTickerDaySnapshot.put(key, hasThisDay)
+    }
+    dbTickerDaySnapshot.get(key)
+  }
 
   val template: String = """http://www.google.com/finance/getprices?i=%s&p=%sd&f=d,o,h,l,c,v&df=cpct&q=%s"""
 
@@ -30,26 +44,29 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) exte
     template.format(DurationUtil.duration2String(duration), periods + "d", ticker)
   }
 
+  def tickerSaver(ticker: String): ISave[TickerQuote] = saveType match {
+    case Cassandra => {
+      implicit val env = Env.DEV
+      new CassandraQuoteSaver
+    }
+    case _ => {
+      val file = (filePath + ticker + ".txt")
+      new FileSaver[TickerQuote](file, (f, q) => {
+        val ticker = f.split("/").last.replace(".txt", "")
+        FileUtil.lastLine(file) match {
+          case Some(s) => q.date.after(TickerQuote(ticker, s).date)
+          case _ => true
+        }
+      })
+    }
+  }
+
   def run(ticker: String, duration: Duration, periods: Int): Boolean = {
     System.setProperty("user.timezone", "America/New_York")
 
-    val saver: ISave[TickerQuote] = saveType match {
-      case Cassandra => {
-        implicit val env = Env.DEV
-        new CassandraQuoteSaver
-      }
-      case _ => {
-        val file = (filePath + ticker + ".txt")
-        new FileSaver[TickerQuote](file, (f, q) => {
-          val ticker = f.split("/").last.replace(".txt", "")
-          FileUtil.lastLine(file) match {
-            case Some(s) => q.date.after(TickerQuote(ticker, s).date)
-            case _ => true
-          }
-        })
-      }
-    }
-    if (saver.updateToday(ticker)) {
+    val saver = tickerSaver(ticker)
+
+    if (saver.updateToday(ticker) && !forceDownload) {
       logger.info(s"$ticker has been updated today, ignore bothering Google")
       true
     } else {
@@ -85,6 +102,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) exte
             dateTime = date + line.apply(0).replaceAll("[a-zA-Z]", "").toInt * 60 * 1000
           }
 
+
           val close = line.apply(1).toDouble
           val high = line.apply(2).toDouble
           val low = line.apply(3).toDouble
@@ -93,7 +111,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra) exte
 
           val quote = TickerQuote(ticker, new Date(dateTime), open, close, high, low, volume)
 
-          list += quote
+          if (!hasTickerDay(ticker, quote.date)) list += quote
 
           input = br.readLine()
         }

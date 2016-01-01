@@ -11,7 +11,7 @@ object Spark {
   val SparkCleanerTtl = 60 * 1000
   val SparkMaster = "local[2]"
   val CassandraSeed = "localhost"
-  val KeepAliveMs = 60 * 1000
+  val KeepAliveMs = 10 * 60 * 1000
 
   val conf = new SparkConf(true).setAppName("IB computing service")
     .set("spark.cassandra.connection.host", CassandraSeed)

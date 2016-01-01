@@ -9,6 +9,7 @@ import scala.concurrent.duration._
   * this is snapping all the financial data we need
   */
 object Crawler {
+  val FalseSet = Set("false", "f")
   def main(args: Array[String]) {
     import CrawlerMode._
     val days = if (args.length < 1) 1
@@ -23,13 +24,15 @@ object Crawler {
         }
       }
     }
+
+    val forceDownload = if (args.length >= 2) !FalseSet.contains(args.apply(1).toLowerCase()) else false
     //    val mode = if (args.length < 1) Daily else CrawlerMode.withName(args.apply(0))
     val filePath = "/Users/qili/finance/data/"
 
     println(s"Crawling mode $days, files saved to $filePath")
     for (stock <- StockRegistry.all) {
       println(s"Snapping the stock $stock")
-      val crawler = new GoogleCrawler(filePath)
+      val crawler = new GoogleCrawler(filePath, SaveType.Cassandra, forceDownload)
       crawler.run(stock.symbol, 60.seconds, days)
     }
   }
