@@ -89,7 +89,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
         //Now saving the valuable data
         var date: Long = input.split(",").apply(0).substring(1).toLong * 1000
         input = br.readLine()
-        var list = new scala.collection.mutable.MutableList[TickerQuote]
+        val list = new java.util.ArrayList[TickerQuote]
         while (null != input) {
           val line = input.split(",")
           val tag = line.apply(0)
@@ -111,10 +111,13 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
 
           val quote = TickerQuote(ticker, new Date(dateTime), open, close, high, low, volume)
 
-          if (!hasTickerDay(ticker, quote.date)) list += quote
+          if (!hasTickerDay(ticker, quote.date)) {
+            list.add(quote)
+          }
 
           input = br.readLine()
         }
+        import scala.collection.JavaConversions._
         val count = saver.saveAll(list)
         logger.info(s"Saved $count new quotes for $ticker")
       }

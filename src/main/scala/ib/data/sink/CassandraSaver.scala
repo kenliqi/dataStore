@@ -48,11 +48,11 @@ class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[TickerQuote] wi
     var count = 0
     data.groupBy(_.ticker) foreach {
       case (ticker, d) => {
-        val last = lastUpdate(ticker)
-        val filterData = d.filter(_.date.after(last))
-        sc.parallelize(filterData).saveToCassandra(env, classOf[TickerQuote], TickerQuote.allColumns)
-        count = count + filterData.size
-        logger.info(s"Saved ${filterData.size} quotes for $ticker")
+        //        val last = lastUpdate(ticker)
+        //        val filterData = d.filter(_.date.after(last))
+        sc.parallelize(d).saveToCassandra(env, classOf[TickerQuote], TickerQuote.allColumns)
+        count = count + d.size
+        logger.info(s"Saved ${d.size} quotes for $ticker")
       }
     }
     count
