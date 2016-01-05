@@ -6,10 +6,11 @@ import scala.util.{Failure, Success, Try}
 /**
   * Created by qili on 05/01/2016.
   */
-trait Retry {
+trait Retry extends Loggable {
   @tailrec
   final def retry[T](n: Int)(fn: => T): T = {
     Try {
+      logger.info(s"Retry for $n time - $fn")
       fn
     } match {
       case Success(s) => s
