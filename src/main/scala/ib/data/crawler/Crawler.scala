@@ -44,7 +44,7 @@ object CrawlerMode extends Enumeration {
 
 object SingleTickerCrawler {
   def main(args: Array[String]) {
-    val ticker = "UBS"
+    val ticker = "EPD"
     val crawler = new GoogleCrawler("dummy", SaveType.Cassandra, true)
     crawler.run(ticker, 60.seconds, 4)
   }
