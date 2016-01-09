@@ -1,7 +1,7 @@
 package ib.data.loader
 
-import ib.data.stock.StockRegistry
-import ib.data.{Quotes, Ticker, TimeSeries}
+import ib.data.stock.{Ticker, StockRegistry}
+import ib.data.{Quotes, TimeSeries}
 
 /**
   * Created by qili on 2015/9/11.

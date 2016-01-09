@@ -11,6 +11,7 @@ libraryDependencies ++= {
   val sparkV = "1.5.2"
   val cassandraConnectorV = "1.5.0-M2"
   val akkaV = "2.4-M3"
+  val scoptV = "3.3.0"
   Seq(
     "org.slf4j" % "slf4j-api" % "1.7.13",
     "ch.qos.logback" % "logback-core" % "1.1.1",
@@ -28,10 +29,14 @@ libraryDependencies ++= {
     "junit" % "junit" % "4.4" % "test",
     "io.spray" %% "spray-json" % "1.3.2",
     "org.apache.spark" %% "spark-streaming" % sparkV,
-    "com.datastax.spark" %% "spark-cassandra-connector" % cassandraConnectorV
+    "com.datastax.spark" %% "spark-cassandra-connector" % cassandraConnectorV,
+    "com.github.scopt" %% "scopt" % scoptV
+
 
   )
 }
+
+
 
 assemblyJarName in assembly := "dataPlatform.jar"
 

@@ -1,6 +1,6 @@
 package ib.data.stock
 
-import ib.data.Ticker
+import ib.data.stock.Ticker
 
 import scala.io.Source
 
@@ -13,9 +13,13 @@ import scala.io.Source
 object StockRegistry {
   //  val all = Seq(Stock("IBM"), Stock("AAPL"), Stock("GOOG"), Stock("MSFT"), Stock(".IXIC", "Nasdaq composite Index"), Stock("ADBE"), Stock("SAP"),
   //    Stock("ORCL"))
-  val stockFile = "/Users/qili/finance/ticker.csv"
-  val all = {
+  val stockFile = "/Users/qili/finance/NewTicker.csv"
+  lazy val all = {
     Source.fromFile(stockFile).getLines().toSeq.tail.map(Ticker(_))
 
+  }
+
+  def main(args: Array[String]) {
+    all foreach println
   }
 }
