@@ -1,5 +1,6 @@
 package ib.data.stock
 
+import ib.data.Exchange
 import ib.data.stock.Ticker
 
 import scala.io.Source
@@ -18,6 +19,11 @@ object StockRegistry {
     Source.fromFile(stockFile).getLines().toSeq.tail.map(Ticker(_))
 
   }
+
+  def exchange(ex: Exchange) = all.filter(_.exchange == ex)
+
+  def stock(name: String, ex: Exchange) = all.filter(s => s.symbol == name && s.exchange == ex)
+
 
   def main(args: Array[String]) {
     all foreach println

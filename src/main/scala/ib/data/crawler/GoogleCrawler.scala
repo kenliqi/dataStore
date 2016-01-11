@@ -6,12 +6,12 @@ import java.util
 import java.util.Date
 
 import ib.Env
-import ib.cassandra.TickerQuote
+import ib.cassandra.Quote
 import ib.common.{Retry, Loggable}
-import ib.data.{Quotes, Quote}
+import ib.data.stock.Ticker
+import ib.data.{Exchange}
 import ib.data.sink.{CassandraQuoteSaver, ISave, FileUtil, FileSaver}
 import ib.util.{DateUtil, DurationUtil}
-import org.joda.time.DateTime
 
 import scala.concurrent.duration.Duration
 
@@ -26,13 +26,13 @@ import SaveType._
   */
 class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forceDownload: Boolean = false) extends ICrawler with Loggable with Retry {
 
-  val dbTickerDaySnapshot = new util.HashMap[(String, String), Boolean]()
+  val dbTickerDaySnapshot = new util.HashMap[(Ticker, String), Boolean]()
 
   val ConnectionTimeOut = 60 * 1000
   //60 seconds
   val ReadTimeOut = 120 * 1000 //120 seconds to retrieve the data
 
-  def hasTickerDay(ticker: String, date: Date): Boolean = {
+  def hasTickerDay(ticker: Ticker, date: Date): Boolean = {
     val key = (ticker, DateUtil.DATE.format(date))
     if (!dbTickerDaySnapshot.containsKey(key)) {
       //first time checking Database where it's saved or not
@@ -42,30 +42,30 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
     dbTickerDaySnapshot.get(key)
   }
 
-  val template: String = """http://www.google.com/finance/getprices?i=%s&p=%sd&f=d,o,h,l,c,v&df=cpct&q=%s"""
+  val template: String = """http://www.google.com/finance/getprices?i=%s&p=%sd&f=d,o,h,l,c,v&df=cpct&q=%s&x=%s"""
 
-  def getUrl(ticker: String, duration: Duration, periods: Int): String = {
-    template.format(DurationUtil.duration2String(duration), periods + "d", ticker)
+  def getUrl(ticker: Ticker, duration: Duration, periods: Int): String = {
+    template.format(DurationUtil.duration2String(duration), periods + "d", ticker.symbol, ticker.exchange.name())
   }
 
-  def tickerSaver(ticker: String): ISave[TickerQuote] = saveType match {
+  def tickerSaver(ticker: Ticker): ISave[Quote] = saveType match {
     case Cassandra => {
       implicit val env = Env.DEV
       new CassandraQuoteSaver
     }
     case _ => {
-      val file = (filePath + ticker + ".txt")
-      new FileSaver[TickerQuote](file, (f, q) => {
-        val ticker = f.split("/").last.replace(".txt", "")
+      val file = (filePath + ticker.symbol + ".txt")
+      new FileSaver[Quote](file, (f, q) => {
+        //        val ticker = f.split("/").last.replace(".txt", "")
         FileUtil.lastLine(file) match {
-          case Some(s) => q.date.after(TickerQuote(ticker, s).date)
+          case Some(s) => q.date.after(Quote(ticker.symbol, ticker.exchange.name(), s).date)
           case _ => true
         }
       })
     }
   }
 
-  def run(ticker: String, duration: Duration, periods: Int): Boolean = {
+  def run(ticker: Ticker, duration: Duration, periods: Int): Boolean = {
     System.setProperty("user.timezone", "America/New_York")
 
     val RetryTimes = 3
@@ -81,7 +81,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
 
   }
 
-  def realRun(ticker: String, duration: Duration, periods: Int, saver: ISave[TickerQuote]): Boolean = {
+  def realRun(ticker: Ticker, duration: Duration, periods: Int, saver: ISave[Quote]): Boolean = {
     val url = getUrl(ticker, duration, periods)
     println(s"Downloading ", url)
     val conn: URLConnection = new URL(url).openConnection()
@@ -103,7 +103,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
       //Now saving the valuable data
       var date: Long = input.split(",").apply(0).substring(1).toLong * 1000
       input = br.readLine()
-      val list = new java.util.ArrayList[TickerQuote]
+      val list = new java.util.ArrayList[Quote]
       while (null != input) {
         val line = input.split(",")
         val tag = line.apply(0)
@@ -123,7 +123,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
         val open = line.apply(4).toDouble
         val volume = line.apply(5).toDouble
 
-        val quote = TickerQuote(ticker, new Date(dateTime), open, close, high, low, volume)
+        val quote = Quote(ticker.symbol, ticker.exchange.name(), new Date(dateTime), open, close, high, low, volume)
 
         if (!hasTickerDay(ticker, quote.date)) {
           list.add(quote)

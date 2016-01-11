@@ -28,7 +28,7 @@ object DataVerification extends Generic {
     val file = new File("LastUpdate.csv")
     val output = new PrintWriter(file)
     println(s"Start processing ${allTickers.count()} tickers")
-    allTickers.collect().map(t => t.symbol).map(n => (n, saver.lastUpdate(n))).foreach {
+    allTickers.collect().map(n => (n, saver.lastUpdate(n))).foreach {
       l => output.append(s"${l.toString()}\n")
     }
     println(s"Done")

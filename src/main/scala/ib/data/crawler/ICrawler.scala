@@ -1,5 +1,8 @@
 package ib.data.crawler
 
+import ib.data.Exchange
+import ib.data.stock.Ticker
+
 import scala.concurrent.duration.Duration
 
 /**
@@ -8,7 +11,7 @@ import scala.concurrent.duration.Duration
 trait ICrawler {
   val template: String
 
-  def run(ticker: String, duration: Duration, periods: Int): Boolean
+  def run(ticker: Ticker, duration: Duration, periods: Int): Boolean
 
 
 }

@@ -41,8 +41,8 @@ object TickerQuote {
 object QuoteLoading extends Generic {
   def all(implicit env: Env.Value) = sc.cassandraTable[TickerQuote](env, classOf[TickerQuote])
 
-  def save(Quotes: Seq[TickerQuote])(implicit env: Env.Value) = {
-    val rdd = sc.parallelize(Quotes)
+  def save(quotes: Seq[TickerQuote])(implicit env: Env.Value) = {
+    val rdd = sc.parallelize(quotes)
     rdd.saveToCassandra(env, classOf[TickerQuote])
   }
 

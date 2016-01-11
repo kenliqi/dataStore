@@ -8,7 +8,6 @@ import scala.concurrent.duration._
 case class CrawlerArgs(days: Int = 1, forceDownload: Boolean = false, exchanges: List[Exchange] = Exchange.values().toList)
 
 
-
 /**
   * Created by Ken on 2015/9/10.
   *
@@ -30,6 +29,7 @@ object Crawler {
     opt[List[Exchange]]('e', "exchanges") action { (ex, config) => config.copy(exchanges = ex) } text ("the exchanges we will crawl")
   }
   val FalseSet = Set("false", "f")
+
   def main(args: Array[String]) {
     import CrawlerMode._
 
@@ -53,7 +53,7 @@ object Crawler {
     for (stock <- StockRegistry.all.filter(ticker => cArgs.exchanges.contains(ticker.exchange))) {
       println(s"Snapping the stock $stock")
       val crawler = new GoogleCrawler(filePath, SaveType.Cassandra, forceDownload)
-      crawler.run(stock.symbol, 60.seconds, days)
+      crawler.run(stock, 60.seconds, days)
     }
   }
 }
@@ -64,7 +64,7 @@ object CrawlerMode extends Enumeration {
 
 object SingleTickerCrawler {
   def main(args: Array[String]) {
-    val ticker = "EPD"
+    val ticker = StockRegistry.stock("600000", Exchange.SHA).head
     val crawler = new GoogleCrawler("dummy", SaveType.Cassandra, true)
     crawler.run(ticker, 60.seconds, 4)
   }

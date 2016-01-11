@@ -3,6 +3,7 @@ package ib.data.sink
 import java.io.{FileOutputStream, PrintStream, File}
 import java.util.Date
 
+import ib.data.stock.Ticker
 import ib.util.DateUtil
 import org.joda.time.DateTime
 
@@ -13,9 +14,9 @@ import scala.io.Source
   */
 trait ISave[T] {
 
-  def updateToday(ticker: String): Boolean
+  def updateToday(ticker: Ticker): Boolean
 
-  def hasThisDay(ticker: String, date: Date): Boolean
+  def hasThisDay(ticker: Ticker, date: Date): Boolean
 
   def save(data: T): Boolean
 
@@ -31,9 +32,9 @@ class FileSaver[T](file: String, saveCheck: (String, T) => Boolean) extends ISav
     outputFile.createNewFile()
   }
 
-  override def hasThisDay(ticker: String, date: Date) = false
+  override def hasThisDay(ticker: Ticker, date: Date) = false
 
-  override def updateToday(ticker: String): Boolean = FileUtil.updatedToday(file)
+  override def updateToday(ticker: Ticker): Boolean = FileUtil.updatedToday(file)
 
   val fos = new PrintStream(new FileOutputStream(outputFile, true))
 
