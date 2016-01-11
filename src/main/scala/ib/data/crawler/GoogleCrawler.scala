@@ -26,6 +26,8 @@ import SaveType._
   */
 class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forceDownload: Boolean = false) extends ICrawler with Loggable with Retry {
 
+  val withExchange = Set(Exchange.SHA, Exchange.SHE)
+
   val dbTickerDaySnapshot = new util.HashMap[(Ticker, String), Boolean]()
 
   val ConnectionTimeOut = 60 * 1000
@@ -43,9 +45,15 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
   }
 
   val template: String = """http://www.google.com/finance/getprices?i=%s&p=%sd&f=d,o,h,l,c,v&df=cpct&q=%s&x=%s"""
+  val noExTemplate: String = """http://www.google.com/finance/getprices?i=%s&p=%sd&f=d,o,h,l,c,v&df=cpct&q=%s"""
 
   def getUrl(ticker: Ticker, duration: Duration, periods: Int): String = {
-    template.format(DurationUtil.duration2String(duration), periods + "d", ticker.symbol, ticker.exchange.name())
+    if (withExchange.contains(ticker.exchange)) {
+      template.format(DurationUtil.duration2String(duration), periods + "d", ticker.symbol, ticker.exchange.urlName)
+    } else {
+      noExTemplate.format(DurationUtil.duration2String(duration), periods + "d", ticker.symbol)
+    }
+
   }
 
   def tickerSaver(ticker: Ticker): ISave[Quote] = saveType match {
