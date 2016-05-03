@@ -1,7 +1,6 @@
 package ib.data.stock
 
 import ib.data.Exchange
-import ib.data.stock.Ticker
 
 import scala.io.Source
 

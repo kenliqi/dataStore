@@ -8,8 +8,8 @@ scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8")
 
 libraryDependencies ++= {
   val sprayV = "1.3.3"
-  val sparkV = "1.5.2"
-  val cassandraConnectorV = "1.5.0-M2"
+  val sparkV = "1.6.1"
+  val cassandraConnectorV = "1.6.0-M2"
   val akkaV = "2.4-M3"
   val scoptV = "3.3.0"
   Seq(
