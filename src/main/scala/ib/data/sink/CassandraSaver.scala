@@ -2,14 +2,16 @@ package ib.data.sink
 
 import java.util.Date
 
+import com.datastax.driver.core.Cluster
 import ib.Env
-import ib.cassandra.{Quote}
+import ib.cassandra.Quote
 import ib.common.Loggable
 import ib.data.Generic
 import ib.data.stock.Ticker
 import ib.spark.Spark._
 import com.datastax.spark.connector._
 import ib.util.DateUtil
+import org.apache.spark.sql.SQLContext
 import org.joda.time.DateTime
 
 
@@ -19,8 +21,22 @@ import org.joda.time.DateTime
 class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[Quote] with Generic with Loggable {
   def all = sc.cassandraTable(env, classOf[Quote])
 
+  val sqlContext = new SQLContext(sc)
+
+  val df = sqlContext
+    .read
+    .format("org.apache.spark.sql.cassandra")
+    .options(Map( "table" -> classToString(classOf[Quote]), "keyspace" -> envToString(env)))
+    .load()
+
+  val session = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("QuoteSaver").build().connect(envToString(env))
+
   override def hasThisDay(ticker: Ticker, date: Date): Boolean = {
-    val count = all.select("date").where("ticker = ? and exchange = ? and  day = ?", ticker.symbol, ticker.exchange, DateUtil.DATE.format(date)).limit(1).count()
+//    val count = df.filter(s"ticker = '${ticker.symbol}' and exchange = '${ticker.exchange}' and  day = '${DateUtil.DATE.format(date)}'").limit(1).count()
+//    val count = all.where("ticker = ? and exchange = ? and  day = ?", ticker.symbol, ticker.exchange, DateUtil.DATE.format(date)).cassandraCount()
+
+  val count = session.execute(s"select count(*) from ${classToString(classOf[Quote])} where ticker = ? and exchange = ? and  day = ?",
+    ticker.symbol, ticker.exchange.name, DateUtil.DATE.format(date)).all().get(0).getLong(0)
     count > 0
   }
 

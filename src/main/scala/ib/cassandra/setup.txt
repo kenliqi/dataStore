@@ -51,8 +51,8 @@ CREATE TABLE ib_cassandra_quote (
   high double,
   low double,
   volume double,
-  PRIMARY KEY ((ticker, exchange), day, date)
-) with clustering order by (day desc, date desc);
+  PRIMARY KEY (ticker, exchange, day, date)
+) with clustering order by (exchange asc, day desc, date desc);
 
 
 INSERT INTO DEV.ib_data_Person (name, school, age) VALUES ('Ken', 'PKU', 23);
