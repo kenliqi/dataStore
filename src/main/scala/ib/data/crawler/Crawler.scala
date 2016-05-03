@@ -31,8 +31,6 @@ object Crawler {
   val FalseSet = Set("false", "f")
 
   def main(args: Array[String]) {
-    import CrawlerMode._
-
     val cArgs = crawlerArgsParser.parse(args, CrawlerArgs()) match {
       case Some(cArgs) => cArgs
       case None => {

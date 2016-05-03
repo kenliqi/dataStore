@@ -80,7 +80,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
 
     val saver = tickerSaver(ticker)
 
-    if (saver.updateToday(ticker) && !forceDownload) {
+    if (!forceDownload && saver.updateToday(ticker)) {
       logger.info(s"$ticker has been updated today, ignore bothering Google")
       true
     } else {
