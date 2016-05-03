@@ -19,7 +19,7 @@ class CassandraQuoteSaverTest {
     val ticker = StockRegistry.stock("AAPL", Exchange.NASDAQ).head
     val lastUpdate = saver.lastUpdate(ticker)
     val q = Quotes.parse("2015-11-02 14:31:01,119.83,119.68,119.87,119.68,160218.0")
-    val tickerQ = Quote("AAPL", Exchange.NASDAQ.name(), q.date, q.open, q.close, q.high, q.low, q.volume)
+    val tickerQ = Quote("AAPL", Exchange.NASDAQ.name(), DateUtil.DATE.format(q.date), q.date, q.open, q.close, q.high, q.low, q.volume)
     saver.saveAll(Seq(tickerQ))
   }
 

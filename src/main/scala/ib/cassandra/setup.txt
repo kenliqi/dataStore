@@ -44,14 +44,15 @@ CREATE TABLE ib_cassandra_tickerquote (
 CREATE TABLE ib_cassandra_quote (
   ticker varchar,
   exchange varchar,
+  day varchar,
   date timestamp,
   open double,
   close double,
   high double,
   low double,
   volume double,
-  PRIMARY KEY (ticker, exchange, date)
-) with clustering order by (exchange asc, date desc);
+  PRIMARY KEY ((ticker, exchange), day, date)
+) with clustering order by (day desc, date desc);
 
 
 INSERT INTO DEV.ib_data_Person (name, school, age) VALUES ('Ken', 'PKU', 23);

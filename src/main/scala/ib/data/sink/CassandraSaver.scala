@@ -20,8 +20,7 @@ class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[Quote] with Gen
   def all = sc.cassandraTable(env, classOf[Quote])
 
   override def hasThisDay(ticker: Ticker, date: Date): Boolean = {
-    val upperDateTime = new DateTime(date).plusHours(1)
-    val count = all.select("date").where("ticker = ? and exchange = ? and  date >= ? and date < ?", ticker.symbol, ticker.exchange, date, upperDateTime.toDate).limit(1).count()
+    val count = all.select("date").where("ticker = ? and exchange = ? and  day = ?", ticker.symbol, ticker.exchange, DateUtil.DATE.format(date)).limit(1).count()
     count > 0
   }
 

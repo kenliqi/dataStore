@@ -130,8 +130,9 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
         val low = line.apply(3).toDouble
         val open = line.apply(4).toDouble
         val volume = line.apply(5).toDouble
+        val datetime = new Date(dateTime)
 
-        val quote = Quote(ticker.symbol, ticker.exchange.name(), new Date(dateTime), open, close, high, low, volume)
+        val quote = Quote(ticker.symbol, ticker.exchange.name(), DateUtil.DATE.format(datetime), datetime, open, close, high, low, volume)
 
         if (!hasTickerDay(ticker, quote.date)) {
           list.add(quote)
