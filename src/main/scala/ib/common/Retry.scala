@@ -10,7 +10,7 @@ trait Retry extends Loggable {
   @tailrec
   final def retry[T](n: Int)(fn: => T): T = {
     Try {
-      logger.info(s"Retry for $n time - $fn")
+      logger.info(s"Retry for $n time")
       fn
     } match {
       case Success(s) => s

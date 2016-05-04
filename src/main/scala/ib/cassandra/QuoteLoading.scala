@@ -4,7 +4,7 @@ import java.util.Date
 
 import ib.Env
 import ib.data.stock.StockRegistry
-import ib.data.{Quotes, Quote, Generic}
+import ib.data.{Quotes, Generic}
 import ib.spark.Spark._
 import com.datastax.spark.connector._
 
