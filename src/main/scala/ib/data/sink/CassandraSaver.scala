@@ -2,7 +2,7 @@ package ib.data.sink
 
 import java.util.Date
 
-import com.datastax.driver.core.Cluster
+import com.datastax.driver.core.{Cluster, NettyOptions, PoolingOptions}
 import ib.Env
 import ib.cassandra.Quote
 import ib.common.Loggable
@@ -15,7 +15,9 @@ import org.apache.spark.sql.SQLContext
 import org.joda.time.DateTime
 
 object CassandraQuoteSaver {
-  val cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("CassQuoteSaver").build()
+  val poolingOptions = new PoolingOptions
+  poolingOptions.setIdleTimeoutSeconds(60)
+  val cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("CassQuoteSaver").withoutMetrics().withPoolingOptions(poolingOptions).build()
 }
 
 /**
