@@ -14,11 +14,15 @@ import ib.util.DateUtil
 import org.apache.spark.sql.SQLContext
 import org.joda.time.DateTime
 
+object CassandraQuoteSaver {
+  val cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("CassQuoteSaver").build()
+}
 
 /**
   * Created by qili on 22/11/2015.
   */
 class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[Quote] with Generic with Loggable {
+  import CassandraQuoteSaver._
   def all = sc.cassandraTable(env, classOf[Quote])
 
   val sqlContext = new SQLContext(sc)
@@ -29,7 +33,7 @@ class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[Quote] with Gen
     .options(Map( "table" -> classToString(classOf[Quote]), "keyspace" -> envToString(env)))
     .load()
 
-  val session = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("QuoteSaver").build().connect(envToString(env))
+  val session = cluster.connect(envToString(env))
 
   override def hasThisDay(ticker: Ticker, date: Date): Boolean = {
 //    val count = df.filter(s"ticker = '${ticker.symbol}' and exchange = '${ticker.exchange}' and  day = '${DateUtil.DATE.format(date)}'").limit(1).count()

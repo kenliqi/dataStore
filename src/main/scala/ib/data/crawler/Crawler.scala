@@ -1,7 +1,12 @@
 package ib.data.crawler
 
+import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.core.util.StatusPrinter
+import ib.common.Loggable
 import ib.data.Exchange
 import ib.data.stock.StockRegistry
+import org.slf4j.LoggerFactory
+
 import scala.concurrent.duration._
 
 
@@ -13,7 +18,7 @@ case class CrawlerArgs(days: Int = 1, forceDownload: Boolean = false, exchanges:
   *
   * this is snapping all the financial data we need
   */
-object Crawler {
+object Crawler extends Loggable {
 
   implicit val exchangeRead: scopt.Read[List[Exchange]] =
     scopt.Read.reads(exs => {
@@ -31,6 +36,9 @@ object Crawler {
   val FalseSet = Set("false", "f")
 
   def main(args: Array[String]) {
+
+    val lc = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
+    StatusPrinter.print(lc)
     val cArgs = crawlerArgsParser.parse(args, CrawlerArgs()) match {
       case Some(cArgs) => cArgs
       case None => {
