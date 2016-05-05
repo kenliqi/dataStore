@@ -91,7 +91,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
 
   def realRun(ticker: Ticker, duration: Duration, periods: Int, saver: ISave[Quote]): Boolean = {
     val url = getUrl(ticker, duration, periods)
-    println(s"Downloading ", url)
+    logger.info(s"Downloading ", url)
     val conn: URLConnection = new URL(url).openConnection()
 
     conn.setConnectTimeout(ConnectionTimeOut)
@@ -101,6 +101,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
     val br: BufferedReader = new BufferedReader(
       new InputStreamReader(conn.getInputStream()))
 
+    logger.info("Parsing the data")
     var input = br.readLine()
     //skip the header
     while (null != input && !input.startsWith("a1")) input = br.readLine()
@@ -117,7 +118,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
         val tag = line.apply(0)
         var dateTime: Long = date
         if (tag.startsWith("a1")) {
-          println("reset the date!")
+          logger.info("reset the date!")
           date = tag.substring(1).toLong * 1000
           dateTime = date
         } else {
@@ -141,6 +142,7 @@ class GoogleCrawler(filePath: String, saveType: SaveType.Value = Cassandra, forc
         input = br.readLine()
       }
       import scala.collection.JavaConversions._
+      logger.info("Saving quotes...")
       val count = saver.saveAll(list)
       logger.info(s"Saved $count new quotes for $ticker")
     }

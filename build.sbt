@@ -42,6 +42,7 @@ assemblyJarName in assembly := "dataPlatform.jar"
 
 test in assembly := {}
 
+unmanagedResourceDirectories in Compile += { baseDirectory.value / "src/config/" }
 
 assemblyMergeStrategy in assembly := {
   case PathList("org", "apache", xs@_*) => MergeStrategy.first

@@ -1,5 +1,6 @@
 package ib.data.sink
 
+import java.time.ZoneId
 import java.util.Date
 
 import com.datastax.driver.core.{Cluster, NettyOptions, PoolingOptions}
@@ -14,10 +15,11 @@ import ib.util.DateUtil
 import org.apache.spark.sql.SQLContext
 import org.joda.time.DateTime
 
-object CassandraQuoteSaver {
+object CassandraQuoteSaver extends Generic {
   val poolingOptions = new PoolingOptions
   poolingOptions.setIdleTimeoutSeconds(60)
   val cluster = Cluster.builder().addContactPoint("127.0.0.1").withClusterName("CassQuoteSaver").withoutMetrics().withPoolingOptions(poolingOptions).build()
+  val session = cluster.connect(envToString(Env.DEV))
 }
 
 /**
@@ -25,17 +27,16 @@ object CassandraQuoteSaver {
   */
 class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[Quote] with Generic with Loggable {
   import CassandraQuoteSaver._
-  def all = sc.cassandraTable(env, classOf[Quote])
+//  def all = sc.cassandraTable(env, classOf[Quote])
 
-  val sqlContext = new SQLContext(sc)
+//  val sqlContext = new SQLContext(sc)
+//
+//  val df = sqlContext
+//    .read
+//    .format("org.apache.spark.sql.cassandra")
+//    .options(Map( "table" -> classToString(classOf[Quote]), "keyspace" -> envToString(env)))
+//    .load()
 
-  val df = sqlContext
-    .read
-    .format("org.apache.spark.sql.cassandra")
-    .options(Map( "table" -> classToString(classOf[Quote]), "keyspace" -> envToString(env)))
-    .load()
-
-  val session = cluster.connect(envToString(env))
 
   override def hasThisDay(ticker: Ticker, date: Date): Boolean = {
 //    val count = df.filter(s"ticker = '${ticker.symbol}' and exchange = '${ticker.exchange}' and  day = '${DateUtil.DATE.format(date)}'").limit(1).count()
@@ -57,8 +58,9 @@ class CassandraQuoteSaver(implicit env: Env.Value) extends ISave[Quote] with Gen
   }
 
   def lastUpdate(symbol: String, exchange: String) = {
-    val data = all.select("date").where("ticker = ? and exchange = ?", symbol, exchange).limit(1)
-    if (data.count() > 0) data.first.getDate("date")
+//    val data = all.select("date").where("ticker = ? and exchange = ?", symbol, exchange).limit(1)
+    val data = session.execute(s"select date from ${classToString(classOf[Quote])} where ticker = ? and exchange = ? limit 1", symbol, exchange).all()
+    if (data.size() > 0)  data.get(0).getTimestamp(0)
     else DateUtil.EdenTime
   }
 

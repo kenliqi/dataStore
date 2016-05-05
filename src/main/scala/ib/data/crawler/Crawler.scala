@@ -56,9 +56,9 @@ object Crawler extends Loggable {
     val filePath = "/Users/qili/finance/data/"
 
     println(s"Crawling mode $days, files saved to $filePath, exchanges ${cArgs.exchanges}")
+    val crawler = new GoogleCrawler(filePath, SaveType.Cassandra, forceDownload)
     for (stock <- StockRegistry.all.filter(ticker => cArgs.exchanges.contains(ticker.exchange))) {
       println(s"Snapping the stock $stock")
-      val crawler = new GoogleCrawler(filePath, SaveType.Cassandra, forceDownload)
       crawler.run(stock, 60.seconds, days)
     }
   }
